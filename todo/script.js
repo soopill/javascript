@@ -1,20 +1,32 @@
 const todoInput = document.querySelector("#todo-input");
 const todoList = document.querySelector("#todo-list");
 
-const createTodo = function () {
+const savedTodoList = JSON.parse(localStorage.getItem("saved-items"));
+
+if (savedTodoList) {
+  for (let i = 0; i < savedTodoList.length; i++) {
+    createTodo(savedTodoList[i]);
+  }
+}
+const createTodo = function (storageData) {
+  let todoContents = todoInput.value;
+  if (storageData) {
+    todoContents = storageData.contents;
+  }
   const newLi = document.createElement("li");
   const newSpan = document.createElement("span");
   const newBtn = document.createElement("button");
 
   newBtn.addEventListener("click", () => {
     newLi.classList.toggle("complete");
+    saveItemsFn();
   });
 
   newLi.addEventListener("dblclick", () => {
     newLi.remove();
   });
 
-  newSpan.textContent = todoInput.value;
+  newSpan.textContent = todoContents;
   newLi.appendChild(newBtn);
   newLi.appendChild(newSpan);
   todoList.appendChild(newLi);
@@ -44,4 +56,5 @@ const saveItemsFn = function () {
     };
     saveItems.push(todoObj);
   }
+  localStorage.setItem("saved-items", JSON.stringify(saveItems));
 };
