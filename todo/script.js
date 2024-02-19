@@ -73,8 +73,13 @@ if (savedTodoList) {
 const weatherSearch = function (position) {
   const openWeatherRes = fetch(
     `https://api.openweathermap.org/data/2.5/onecall?lat=${position.latitude}&lon=${position.longitude}&appid={5355da7db365b4f1be79988ec33657be}`
-  );
-  console.log(openWeatherRes);
+  )
+    .then((res) => {
+      return res.json();
+    })
+    .then((json) => {
+      console.log(json);
+    });
 };
 
 const accessToGeo = function (position) {
