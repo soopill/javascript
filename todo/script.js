@@ -36,7 +36,7 @@ const createTodo = function (storageData) {
 };
 
 const keyCodeCheck = function () {
-  if (window.event.keyCode === 13 && todoInput.value) {
+  if (window.event.keyCode === 13 && todoInput.value.trim() !== "") {
     createTodo();
   }
 };
@@ -70,22 +70,59 @@ if (savedTodoList) {
   }
 }
 
-const weatherSearch = function (position) {
-  const openWeatherRes = fetch(
-    `https://api.openweathermap.org/data/2.5/onecall?lat=${position.latitude}&lon=${position.longitude}&appid={5355da7db365b4f1be79988ec33657be}`
+const weatherDataActive = function ({ location, weather }) {
+  const weatherMainList = [
+    "Clear",
+    "Clouds",
+    "Drizzle",
+    "Rain",
+    "Snow",
+    "Thunderstorm",
+  ];
+  weather = weatherMainList.includes(weather) ? weather : "Fog";
+  const locationNameTag = document.querySelector("#location-name-tag");
+
+  locationNameTag.textContent = location;
+  document.body.style.backgroundImage = `url('./images/${weather}.jpg')`;
+
+  if (
+    !savedWeatherData ||
+    savedWeatherData.location !== location ||
+    savedWeatherData.weather !== weather
+  ) {
+    localStorage.setItem(
+      "saved-weather",
+      JSON.stringify({ location, weather })
+    );
+  }
+};
+
+const weatherSearch = function ({ latitude, longitude }) {
+  fetch(
+    `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=c224065a7ef7b1170e5a13b1ef226b7a`
   )
     .then((res) => {
       return res.json();
     })
     .then((json) => {
-      console.log(json);
+      console.log(json.name, json.weather[0].main);
+      const weatherData = {
+        location: json.name,
+        weather: json.weather[0].main,
+      };
+      weatherDataActive(weatherData);
+    })
+    .catch((err) => {
+      console.log(err);
     });
 };
 
-const accessToGeo = function (position) {
+const accessToGeo = function ({ coords }) {
+  const { latitude, longitude } = coords;
   const positionObj = {
-    latitude: position.coords.latitude,
-    longitude: position.coords.longitude,
+    //키와 밸류가 같으면 하나만 적어도 됨 shorthand property
+    latitude,
+    longitude,
   };
 
   weatherSearch(positionObj);
